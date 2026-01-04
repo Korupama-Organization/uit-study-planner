@@ -1,32 +1,36 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: bug
-assignees: ''
-
+name: "🐛 Bug Report"
+about: "Create a report to help us improve the project"
+title: "[BUG] <Short description of the issue>"
+labels: ["bug", "triage"]
+assignees: ""
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**1. Describe the bug**
+A clear and concise description of what the bug is. 
 
-**To Reproduce**
+**2. To Reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '...'
 3. Scroll down to '...'
 4. See error
 
-**Expected behavior**
+**3. Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**4. Screenshots/Video**
+If applicable, insert screenshots or screen recordings to help describe the problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**5. Environment Info**
+Please complete the following information:
+- **OS**: [e.g. Windows 10, macOS Monterey]
+- **Browser/Platform**: [e.g. Chrome 98, Firefox 97]
+- **Node Version** (if applicable): [e.g. 16.14.0]
+- **App Version**: [e.g. 1.0.0]
 
-**Additional context**
+**6. Additional Context**
 Add any other context about the problem here.
+
+**7. Possible Solution (Optional)**
+If you have an idea of how to fix this, please describe it here.

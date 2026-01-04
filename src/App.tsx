@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  DndContext, 
-  DragOverlay, 
-  closestCorners, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
   useSensors,
   type DragStartEvent,
-  type DragOverEvent,
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
@@ -19,15 +18,15 @@ import { useStudyPlanStore } from './store/useStudyPlanStore';
 import type { Course } from './types';
 
 const StudyPlanApp: React.FC = () => {
-  const { 
-    semesters, 
-    unassignedCourses, 
+  const {
+    semesters,
+    unassignedCourses,
     moveCourse,
     fetchCourses,
     isLoading,
     error
   } = useStudyPlanStore();
-  
+
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
 
   useEffect(() => {
@@ -48,10 +47,10 @@ const StudyPlanApp: React.FC = () => {
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     const courseId = active.id as string;
-    
+
     // Find course in unassigned
     let course = unassignedCourses.find(c => c.ma_mon_hoc === courseId);
-    
+
     // If not found, look in semesters
     if (!course) {
       for (const sem of Object.values(semesters)) {
@@ -62,17 +61,17 @@ const StudyPlanApp: React.FC = () => {
         }
       }
     }
-    
+
     setActiveCourse(course || null);
   };
 
-  const handleDragOver = (_event: DragOverEvent) => {
+  const handleDragOver = () => {
     // Optional: add visual feedback logic here
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (!over) {
       setActiveCourse(null);
       return;
@@ -86,7 +85,7 @@ const StudyPlanApp: React.FC = () => {
     if (unassignedCourses.some(c => c.ma_mon_hoc === courseId)) {
       sourceId = 'unassigned';
     } else {
-      const sourceSem = Object.values(semesters).find(s => 
+      const sourceSem = Object.values(semesters).find(s =>
         s.courses.some(c => c.ma_mon_hoc === courseId)
       );
       if (sourceSem) sourceId = sourceSem.id;
@@ -96,12 +95,12 @@ const StudyPlanApp: React.FC = () => {
     let targetId = overId;
     // If dropped on a course card, find its container
     if (targetId !== 'unassigned' && !semesters[targetId]) {
-       // It might be dropped onto another course card inside a semester
-       const targetSem = Object.values(semesters).find(s => 
-         s.courses.some(c => c.ma_mon_hoc === targetId)
-       );
-       if (targetSem) targetId = targetSem.id;
-       else targetId = 'unassigned'; // Default fallback
+      // It might be dropped onto another course card inside a semester
+      const targetSem = Object.values(semesters).find(s =>
+        s.courses.some(c => c.ma_mon_hoc === targetId)
+      );
+      if (targetSem) targetId = targetSem.id;
+      else targetId = 'unassigned'; // Default fallback
     }
 
     moveCourse(courseId, sourceId, targetId);
@@ -118,7 +117,7 @@ const StudyPlanApp: React.FC = () => {
     >
       <div className="flex h-screen bg-gray-100 overflow-hidden font-sans text-gray-900">
         <CourseSidebar courses={unassignedCourses} />
-        
+
         <main className="flex-1 flex flex-col h-full overflow-hidden">
           <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm z-10 flex justify-between items-center">
             <div>
@@ -128,14 +127,14 @@ const StudyPlanApp: React.FC = () => {
             {isLoading && <span className="text-sm text-blue-600 animate-pulse">Đang tải dữ liệu...</span>}
             {error && <span className="text-sm text-red-600">{error}</span>}
           </header>
-          
+
           <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
             <div className="flex gap-6 h-full pb-2">
               {Object.values(semesters).map((semester) => (
-                <SemesterColumn 
-                  key={semester.id} 
-                  id={semester.id} 
-                  semester={semester} 
+                <SemesterColumn
+                  key={semester.id}
+                  id={semester.id}
+                  semester={semester}
                 />
               ))}
             </div>

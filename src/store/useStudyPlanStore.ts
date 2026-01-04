@@ -45,58 +45,59 @@ export const useStudyPlanStore = create<StudyPlanState>((set, get) => ({
     try {
       const corsProxy = 'https://api.allorigins.win/raw?url=';
       const url = 'https://daa.uit.edu.vn/danh-muc-mon-hoc-dai-hoc';
-      
+
       const response = await axios.get(corsProxy + encodeURIComponent(url));
       const html = response.data;
       const $ = cheerio.load(html);
       const data: Course[] = [];
 
       $('table.tablesorter tbody tr').each((_i, el) => {
-          const row = $(el).find('td');
+        const row = $(el).find('td');
 
-          const getText = (element: any) => {
-              return element.text().trim().replace(/\u00a0/g, ' ').trim();
-          }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const getText = (element: cheerio.Cheerio<any>) => {
+          return element.text().trim().replace(/\u00a0/g, ' ').trim();
+        }
 
-          const getCourses = (index: number) => {
-            const cellHtml = $(row[index]).html();
-            if (!cellHtml) return [];
-            return cellHtml.split('<br>').map((s: string) => $(`<td>${s}</td>`).text().trim()).filter((s: string) => s);
-          }
+        const getCourses = (index: number) => {
+          const cellHtml = $(row[index]).html();
+          if (!cellHtml) return [];
+          return cellHtml.split('<br>').map((s: string) => $(`<td>${s}</td>`).text().trim()).filter((s: string) => s);
+        }
 
-          const so_tclt = parseInt(getText($(row[11]))) || 0;
-          const so_tcth = parseInt(getText($(row[12]))) || 0;
+        const so_tclt = parseInt(getText($(row[11]))) || 0;
+        const so_tcth = parseInt(getText($(row[12]))) || 0;
 
-          const course: Course = {
-              'stt': getText($(row[0])),
-              'ma_mon_hoc': getText($(row[1])),
-              'ten_mon_hoc': getText($(row[2])),
-              'ten_mon_hoc_en': getText($(row[3])),
-              'con_mo_lop': $(row[4]).find('img').attr('title') === 'Hiện đang mở',
-              'don_vi_quan_ly': getText($(row[5])),
-              'loai_mon_hoc': getText($(row[6])),
-              'ma_cu': getText($(row[7])),
-              'mon_hoc_tuong_duong': getCourses(8),
-              'mon_hoc_tien_quyet': getCourses(9),
-              'mon_hoc_truoc': getCourses(10),
-              'so_tin_chi_ly_thuyet': so_tclt,
-              'so_tin_chi_thuc_hanh': so_tcth,
-              'so_tin_chi': so_tclt + so_tcth,
-          };
-          data.push(course);
+        const course: Course = {
+          'stt': getText($(row[0])),
+          'ma_mon_hoc': getText($(row[1])),
+          'ten_mon_hoc': getText($(row[2])),
+          'ten_mon_hoc_en': getText($(row[3])),
+          'con_mo_lop': $(row[4]).find('img').attr('title') === 'Hiện đang mở',
+          'don_vi_quan_ly': getText($(row[5])),
+          'loai_mon_hoc': getText($(row[6])),
+          'ma_cu': getText($(row[7])),
+          'mon_hoc_tuong_duong': getCourses(8),
+          'mon_hoc_tien_quyet': getCourses(9),
+          'mon_hoc_truoc': getCourses(10),
+          'so_tin_chi_ly_thuyet': so_tclt,
+          'so_tin_chi_thuc_hanh': so_tcth,
+          'so_tin_chi': so_tclt + so_tcth,
+        };
+        data.push(course);
       });
 
       set({ unassignedCourses: data, isLoading: false });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch courses:', error);
-      set({ 
-        error: 'Failed to fetch course data. Please try again later. ' + (error.message || ''), 
-        isLoading: false 
+      set({
+        error: 'Failed to fetch course data. Please try again later. ' + ((error as Error).message || ''),
+        isLoading: false
       });
     }
   },
-  
-  addCourseToSemester: (course, semesterId) => 
+
+  addCourseToSemester: (course, semesterId) =>
     get().moveCourse(course.ma_mon_hoc, 'unassigned', semesterId),
 
   removeCourseFromSemester: (course, semesterId) =>
@@ -149,14 +150,14 @@ export const useStudyPlanStore = create<StudyPlanState>((set, get) => ({
         for (const semId in state.semesters) {
           const sem = state.semesters[semId];
           const semNum = getSemesterNumber(semId);
-          
+
           for (const scheduledCourse of sem.courses) {
-            if (scheduledCourse.ma_mon_hoc === courseId) continue; 
-            
+            if (scheduledCourse.ma_mon_hoc === courseId) continue;
+
             if (scheduledCourse.mon_hoc_truoc && scheduledCourse.mon_hoc_truoc.includes(courseId)) {
               if (targetSemNum >= semNum) {
-                 alert(`Không thể xếp môn "${course.ten_mon_hoc}" vào ${state.semesters[toSemesterId].name} vì môn học sau nó là "${scheduledCourse.ten_mon_hoc}" đang ở ${sem.name}. Môn tiên quyết phải học trước.`);
-                 return state;
+                alert(`Không thể xếp môn "${course.ten_mon_hoc}" vào ${state.semesters[toSemesterId].name} vì môn học sau nó là "${scheduledCourse.ten_mon_hoc}" đang ở ${sem.name}. Môn tiên quyết phải học trước.`);
+                return state;
               }
             }
           }
@@ -165,7 +166,7 @@ export const useStudyPlanStore = create<StudyPlanState>((set, get) => ({
 
       // Execute Move
       let newUnassigned = [...state.unassignedCourses];
-      let newSemesters = { ...state.semesters };
+      const newSemesters = { ...state.semesters };
 
       // Remove from source
       if (fromSemesterId === 'unassigned') {
